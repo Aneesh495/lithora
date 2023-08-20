@@ -1,0 +1,49 @@
+# Rust
+/target
+**/target
+Cargo.lock.bak
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+
+# Node / web
+node_modules/
+web/dist/
+web/.vite/
+*.tsbuildinfo
+
+# Data and model artifacts (acquired, not committed)
+/data/raw/
+/data/cache/
+/data/tiles/
+*.parquet
+*.feather
+*.nc
+*.rot
+*.gpml
+*.gpmlz
+checkpoints/
+*.pt
+*.ckpt
+
+# Evidence bundles (large, external)
+/evidence/
+/runs/
+
+# Private agent state (NEVER commit)
+/.agent-local/
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/
