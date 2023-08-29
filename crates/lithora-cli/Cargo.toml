@@ -1,0 +1,20 @@
+[package]
+name = "lithora-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "Command-line tool for Lithora reconstruction and kinematics."
+
+[[bin]]
+name = "lithora"
+path = "src/main.rs"
+
+[dependencies]
+lithora-geo = { path = "../lithora-geo" }
+lithora-recon = { path = "../lithora-recon" }
+clap = { workspace = true }
+anyhow = { workspace = true }
+serde_json = { workspace = true }
