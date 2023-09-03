@@ -30,6 +30,7 @@ pub mod error;
 pub mod polygon;
 pub mod rotation;
 pub mod sequence;
+pub mod testutil;
 pub mod units;
 pub mod vec3;
 pub mod velocity;
