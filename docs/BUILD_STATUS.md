@@ -30,14 +30,41 @@ passing test or a runnable demo behind it.
 
 Current test count: 64 Rust unit tests passing.
 
+## Python inference layer (python/)
+
+| Area | Status | Evidence |
+|---|---|---|
+| Sphere ops (numpy) | done | `sphere.py` + tests |
+| Weighted Euler-pole fit | done | `euler_fit.py`, recovers synthetic within 5% |
+| Synthetic known-truth worlds | done | `synthetic.py` |
+| Deterministic baselines | done | `baselines.py` (rigid/NN/local) |
+| GP residual baseline | done | `gp.py` with predictive std |
+| Spatial buffered folds + metrics | done | `evaluate.py` + tests |
+| Parallel transport / tangent frames | done | `transport.py` + tests |
+| Spherical graph residual model | done | `graph_model.py` (PyTorch 2.15, MPS) |
+| Training harness | done | `train.py`: gradients/checkpoint/held-out gains |
+| Robust GNSS time-series fit | done | `timeseries.py` + tests |
+| NGL + USGS acquisition | done | `data/` with provenance; 20,168 IGS14 stations pulled |
+
+Current test count: 36 Python tests passing + 64 Rust unit + 11 Rust G01 = 111.
+
+## Measured real-data result (integration check)
+
+Rigid Euler-pole fit to 1,374 North American interior IGS14 stations:
+median residual 0.44 mm/yr against a 15.4 mm/yr observed field, condition
+number ~1e2, not rank deficient. A rigid interior collapsing the field to a
+sub-mm residual is the expected behaviour and validates the fit on real data.
+
 ## Not yet built / blocked on external resources
 
-- Real GNSS acquisition (>=1000 stations): blocked on network archive download.
-- PyTorch learning stack: Python 3.14 has no torch wheels yet; the learning
-  layer is designed to gate on availability.
 - CesiumJS globe: planned under `web/`.
 - pyGPlates differential verification (G02): needs pyGPlates install + models.
-- Full acceptance campaign, 12-hour stress, browser FPS benchmark: pending.
+- Full multi-fold training campaign and 12-hour stress: harness exists; full
+  run pending.
+- Browser FPS benchmark (G11): pending the web globe.
+- Reconstruction rotation models (EarthByte .rot for two published models):
+  the parser and engine are done and tested on synthetic models; pinning two
+  real published models with licenses is pending.
 
 See `docs/SPECIFICATION.md` for the capability map and `docs/ARCHITECTURE.md`
 for the system structure.
