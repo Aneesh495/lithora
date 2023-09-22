@@ -1,0 +1,15 @@
+flowchart LR
+  TS[Daily position series] --> DM[Design matrix:\n1, t, annual, semiannual, steps]
+  DM --> LS[Least squares]
+  LS --> TR[trend = velocity]
+  LS --> RES[residuals]
+  RES --> AC[lag-1 autocorrelation r]
+  AC --> INF["inflation sqrt((1+r)/(1-r))"]
+  LS --> SW[white-noise sigma]
+  SW --> SIG[inflated velocity sigma]
+  INF --> SIG
+  TS --> MID[MIDAS-like\nyear-pair median slope]
+  MID --> CHK[model-free cross-check]
+  TR --> OUT[velocity + honest uncertainty]
+  SIG --> OUT
+  CHK --> OUT

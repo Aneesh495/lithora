@@ -1,0 +1,19 @@
+flowchart TD
+  subgraph Rust
+    U1[unit tests per module]
+    G1[G01 property campaign\n>100k random cases]
+    DIFF[analytic/finite-diff velocity checks]
+  end
+  subgraph Python
+    U2[parser + fit unit tests]
+    SYN[synthetic recovery G05]
+    MODEL[gradient/checkpoint/equivariance G06/G09]
+    DATA[offline format parse tests]
+  end
+  subgraph Integration
+    CLI[CLI on real IGS14 data]
+    CMP[model comparison across regions]
+  end
+  U1 --> G1 --> DIFF
+  U2 --> SYN --> MODEL
+  DATA --> CLI --> CMP

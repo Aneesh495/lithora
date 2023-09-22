@@ -1,0 +1,10 @@
+flowchart TD
+  GEO["Geodetic lat/lon, WGS84 ellipsoid"] -->|"tan phi_gc = (1-e^2) tan phi_gd"| GCL[Geocentric spherical lat]
+  GCL --> UV[Unit vector r on sphere]
+  UV --> ECEF[ECEF Cartesian]
+  ECEF --> ENU[Local ENU tangent basis]
+  ENU --> VEL[Velocity east/north mm/yr]
+  FRAME{Reference frame}
+  FRAME -->|IGS14/IGS20 global| G1[global velocities]
+  FRAME -->|plate-fixed NA, EU, ...| G2[plate-relative velocities]
+  G1 -. no silent mixing .-> G2

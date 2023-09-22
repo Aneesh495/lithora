@@ -1,0 +1,18 @@
+flowchart TB
+  subgraph lithora-geo
+    units --> vec3 --> coord --> rotation
+    rotation --> sequence --> circuit
+    rotation --> velocity
+    coord --> polygon
+    coord --> ellipsoid
+  end
+  subgraph lithora-recon
+    rot_format --> reconstruct
+  end
+  subgraph lithora-cli
+    main
+  end
+  rotation --> rot_format
+  circuit --> reconstruct
+  velocity --> reconstruct
+  reconstruct --> main

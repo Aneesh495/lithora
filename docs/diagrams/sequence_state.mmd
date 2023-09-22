@@ -1,0 +1,10 @@
+stateDiagram-v2
+  [*] --> Empty
+  Empty --> Loaded: parse .rot file
+  Loaded --> Validated: sort by age, check bounds
+  Validated --> Queryable
+  Queryable --> Interpolating: rotation_at(age)
+  Interpolating --> Queryable: slerp result
+  Interpolating --> OutOfRange: age beyond samples
+  OutOfRange --> Queryable: caller handles error
+  Queryable --> [*]

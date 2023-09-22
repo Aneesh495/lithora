@@ -1,0 +1,10 @@
+flowchart TD
+  START[Training / acquisition] --> SAVE[atomic checkpoint:\ntemp file then rename]
+  SAVE --> OK{interrupted?}
+  OK -->|no| DONE[complete artifact]
+  OK -->|yes, during write| TMP[temp file discarded\nlast good checkpoint intact]
+  TMP --> RESUME[resume from last checkpoint]
+  RESUME --> START
+  NET[network fetch] --> FAIL{http != 200\nor TLS error}
+  FAIL -->|error| HARD[raise, no empty data]
+  FAIL -->|ok| CACHE[cache + provenance]

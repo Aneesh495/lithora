@@ -1,0 +1,19 @@
+flowchart LR
+  subgraph Neighbor j
+    VJ[residual v_j in j frame]
+    EJ[east_j, north_j]
+  end
+  subgraph Center i
+    EI[east_i, north_i]
+    VI[message in i frame]
+  end
+  VJ --> PT[parallel transport\nalong great circle i-j]
+  EJ --> PT
+  PT --> PROJ[project onto east_i, north_i]
+  EI --> PROJ
+  PROJ --> VI
+  VI --> MSG[message MLP]
+  LOG[log-map offset\neast, north, distance] --> MSG
+  MSG --> AGG[degree-normalized aggregate]
+  AGG --> UPD[state update + readout]
+  UPD --> OUT[predicted residual\nin i frame]

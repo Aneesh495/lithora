@@ -1,0 +1,18 @@
+flowchart LR
+  subgraph Modern clock
+    direction TB
+    G[GNSS velocities now] --> RF[Rigid pole fit]
+    RF --> RES[Residual deformation field]
+    RES --> UNC[Uncertainty + calibration]
+  end
+  subgraph Geological clock
+    direction TB
+    ROT[Rotation model] --> REC[Reconstructed geometry at age t]
+    REC --> LIM[Valid-interval limits]
+  end
+  SWITCH{{Clock selector}}
+  SWITCH -->|present| G
+  SWITCH -->|Ma before present| ROT
+  NOTE[Interpretation links the two:\nnot a measurement bridge]
+  RES -. geological interpretation .-> NOTE
+  REC -. geological interpretation .-> NOTE

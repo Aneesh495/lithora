@@ -1,0 +1,11 @@
+flowchart LR
+  SRC[source commit\n+ manifest hash] --> RUN[campaign run]
+  DATA[dataset bytes\n+ sha256] --> RUN
+  ENV[environment.json] --> RUN
+  RUN --> RAW[raw per-unit observations]
+  RAW --> SUMM[result summarizer]
+  RAW --> VER[independent verifier\nrecompute + replay]
+  SUMM --> CLAIM[claim-to-evidence entries]
+  VER --> STATUS[passed / failed / blocked / unverified]
+  CLAIM --> REPORT[research report figures]
+  STATUS --> REPORT

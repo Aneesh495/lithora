@@ -1,0 +1,18 @@
+sequenceDiagram
+  participant U as User / CLI
+  participant M as Model (lithora-recon)
+  participant C as PlateCircuit
+  participant S as RotationSequence
+  participant R as Rotation (lithora-geo)
+  U->>M: reconstruct_point(point, plate, age)
+  M->>C: total_rotation(plate, anchor, age)
+  loop up the parent chain
+    C->>S: rotation_at(age)
+    S->>S: bracket samples, slerp
+    S-->>C: interpolated finite rotation
+    C->>R: acc.then(link_rotation)
+  end
+  C-->>M: total rotation to anchor
+  M->>R: rotation.apply(point unit vector)
+  R-->>M: moved unit vector
+  M-->>U: reconstructed LatLon

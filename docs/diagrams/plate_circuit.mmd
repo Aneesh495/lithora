@@ -1,0 +1,10 @@
+flowchart TD
+  A[Anchor plate 0]
+  P1[Plate 701]
+  P2[Plate 801]
+  P3[Plate 802]
+  P2 -- "q(801->701, t)" --> P1
+  P3 -- "q(802->701, t)" --> P1
+  P1 -- "q(701->0, t)" --> A
+  classDef anchor fill:#2b6,stroke:#063,color:#fff;
+  class A anchor;

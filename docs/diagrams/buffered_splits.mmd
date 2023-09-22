@@ -1,0 +1,11 @@
+flowchart TD
+  NET[Station network] --> BLOCKS[Assign to spatial blocks]
+  BLOCKS --> PICK[Pick one block as test]
+  PICK --> CAND[Candidate train = other blocks]
+  CAND --> BUF{within buffer of\na test station?}
+  BUF -->|yes| DROP[drop from train]
+  BUF -->|no| KEEP[keep in train]
+  KEEP --> FIT[fit models]
+  DROP --> LOG[count dropped to buffer]
+  FIT --> EVAL[evaluate on test block]
+  EVAL --> METR[RMSE, coverage,\nerror vs distance to network]

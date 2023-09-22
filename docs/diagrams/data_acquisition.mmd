@@ -1,0 +1,11 @@
+flowchart LR
+  REQ[acquire request\nframe or query] --> SSL[OS trust store TLS]
+  SSL --> FETCH[download bytes]
+  FETCH --> HASH[sha256 + byte count]
+  HASH --> CACHE[(data/raw cache\ngitignored)]
+  HASH --> MAN[provenance.json\nsource, url, citation, frame, time]
+  CACHE --> PARSE[format parser]
+  PARSE --> FIELD[typed field\nframe-tagged]
+  FIELD --> GUARD{merge same frame?}
+  GUARD -->|same| OK[combined field]
+  GUARD -->|different| REJECT[reject: frames not comparable]
