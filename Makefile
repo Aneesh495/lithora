@@ -10,7 +10,7 @@ PY := $(VENV)/bin/python
 PIP := $(VENV)/bin/pip
 PYTEST := $(VENV)/bin/pytest
 
-.PHONY: all bootstrap doctor build test data demo bench stress docs acceptance verify release \
+.PHONY: all bootstrap doctor build test data demo bench stress docs acceptance verify negative-controls release \
         acquire-gnss reconstruct fit-plates train spatial-evaluate atlas paper clean
 
 all: build test
@@ -87,11 +87,17 @@ stress:
 docs:
 	@echo "Docs live under docs/. Diagrams under docs/diagrams (make diagrams)."
 
-acceptance:
-	@echo "Full acceptance campaign (see docs/EXPERIMENT_PLAN.md). RUN_ID=$(RUN_ID) PROFILE=$(PROFILE)"
+acceptance: $(VENV)
+	@test -n "$(RUN_ID)" || (echo "set RUN_ID=<new-id>"; exit 1)
+	$(PY) -m lithora.acceptance --evidence evidence/$(RUN_ID) --frame IGS14
 
-verify:
+verify: $(VENV)
+	@test -n "$(EVIDENCE)" || (echo "set EVIDENCE=<path>"; exit 1)
 	$(PY) -m lithora.verify --evidence $(EVIDENCE)
+
+negative-controls: $(VENV)
+	@test -n "$(EVIDENCE)" || (echo "set EVIDENCE=<path>"; exit 1)
+	$(PY) -m lithora.negative_controls --evidence $(EVIDENCE)
 
 release: build test
 	@echo "Release packaging: fresh-checkout build + test + demo."
