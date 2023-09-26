@@ -1,0 +1,22 @@
+{
+  "name": "lithora-atlas",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Interactive globe for Lithora: GNSS velocity fields, rigid vs residual, and provenance.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "cesium": "^1.121.0"
+  },
+  "devDependencies": {
+    "puppeteer": "^25.16.0",
+    "typescript": "^5.5.0",
+    "vite": "^5.4.0",
+    "vite-plugin-cesium": "^1.2.23"
+  }
+}

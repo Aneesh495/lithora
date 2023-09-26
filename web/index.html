@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lithora atlas</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="cesiumContainer"></div>
+    <aside id="panel" aria-label="Lithora controls">
+      <h1>Lithora</h1>
+      <p class="sub">Present-day GNSS deformation. Reference frame and
+        uncertainty stay attached to every layer.</p>
+
+      <section>
+        <label for="region">Region</label>
+        <select id="region" aria-label="Region">
+          <option value="cal">California transform margin</option>
+          <option value="na">North America interior</option>
+        </select>
+      </section>
+
+      <section>
+        <label for="layer">Vector layer</label>
+        <select id="layer" aria-label="Vector layer">
+          <option value="obs">Observed velocity</option>
+          <option value="rigid">Rigid-model prediction</option>
+          <option value="residual">Residual (observed minus rigid)</option>
+          <option value="local">Local-model prediction</option>
+        </select>
+      </section>
+
+      <section>
+        <label for="exag">Vector exaggeration: <span id="exagVal">1</span>x</label>
+        <input id="exag" type="range" min="1" max="100" value="8" aria-label="Vector exaggeration" />
+        <p class="legend" id="scaleLegend"></p>
+      </section>
+
+      <section>
+        <label><input id="showUnc" type="checkbox" checked /> Show station uncertainty</label>
+        <label><input id="showHoldout" type="checkbox" /> Mark spatial holdout folds</label>
+      </section>
+
+      <section id="provenance" class="provenance"></section>
+      <section id="inspector" class="inspector" aria-live="polite">
+        <em>Click a station to inspect it.</em>
+      </section>
+    </aside>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
