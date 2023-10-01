@@ -55,16 +55,33 @@ median residual 0.44 mm/yr against a 15.4 mm/yr observed field, condition
 number ~1e2, not rank deficient. A rigid interior collapsing the field to a
 sub-mm residual is the expected behaviour and validates the fit on real data.
 
+## Atlas, verifier, and docs
+
+| Area | Status | Evidence |
+|---|---|---|
+| CesiumJS globe | done | `web/`, builds with 0 type errors; screenshot `docs/atlas.png` |
+| Web data export | done | `export_web.py`, real CA+NA samples committed |
+| Acceptance runner | done | `acceptance.py`, writes evidence bundle |
+| Independent verifier | done | `verify.py`, recomputes pole independently |
+| Semantic negative controls | done | 6 controls, all reject correctly (G13) |
+| Research notes | done | 12 notes in `docs/research/` with measured results |
+| Diagrams | done | 13 Mermaid + rendered SVG in `docs/diagrams/` |
+| ADRs | done | 13 in `docs/adr/` |
+| CI workflow | done | `.github/workflows/ci.yml` (fmt, clippy -D, tests, build) |
+| Multi-seed training | done | 3 seeds on real CA data (see research note 11) |
+
 ## Not yet built / blocked on external resources
 
-- CesiumJS globe: planned under `web/`.
-- pyGPlates differential verification (G02): needs pyGPlates install + models.
-- Full multi-fold training campaign and 12-hour stress: harness exists; full
-  run pending.
-- Browser FPS benchmark (G11): pending the web globe.
-- Reconstruction rotation models (EarthByte .rot for two published models):
-  the parser and engine are done and tested on synthetic models; pinning two
-  real published models with licenses is pending.
+- pyGPlates differential verification (G02): needs a pyGPlates install and two
+  pinned published models. The engine and comparison machinery are built and
+  tested on synthetic models.
+- Full acceptance profile (many folds x 3 seeds x leave-region-out) and the
+  12-hour stress run (G12): the diagnostic profile runs; the full campaign is
+  declared in EXPERIMENT_PLAN and pending a longer run.
+- Browser FPS benchmark at 10,000 glyphs on a pinned desktop (G11): the globe
+  renders real data; the headless environment lacks a GPU/WebGL path and
+  imagery tiles, so a measured FPS number needs a real desktop browser.
+- Two pinned EarthByte rotation models with licenses (for G02/L08 at scale).
 
 See `docs/SPECIFICATION.md` for the capability map and `docs/ARCHITECTURE.md`
 for the system structure.

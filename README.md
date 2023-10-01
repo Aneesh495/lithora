@@ -73,6 +73,45 @@ cargo test --workspace
 - `crates/lithora-cli`: the command-line tool and demo.
 - `docs/`: architecture, specification, and build status.
 
+## Measured results on real data
+
+Lithora acquires real GNSS velocities from the Nevada Geodetic Laboratory MIDAS
+product (20,168 IGS14 stations, 16,002 with at least five years of data) and
+runs the same pipeline across regions:
+
+- North America interior (1,374 stations): a single rigid Euler pole explains
+  the field to a 0.44 mm/yr median residual against a 15.4 mm/yr observed
+  field, and no residual model improves held-out prediction. The rigid null
+  wins in a rigid interior, as it should.
+- California transform margin (1,552 stations): on spatially buffered folds the
+  residual models cut held-out vector RMSE from 14.8 (rigid) to 6.4 mm/yr
+  (local regression), and the Gaussian process is measurably overconfident
+  there (1-sigma coverage about 0.09), a real calibration-failure finding.
+
+Reproduce:
+
+```
+make bootstrap && make acquire-gnss
+python -m lithora.cli fit-plates --frame IGS14 --region na
+python -m lithora.cli spatial-evaluate --frame IGS14 --region cal
+```
+
+## Atlas
+
+An interactive CesiumJS globe renders the real velocity fields with model-layer
+switching, exaggeration plus a scale legend, station uncertainty, spatial
+holdout coloring, and a provenance panel that always shows the reference frame.
+
+![Lithora atlas showing California GNSS velocity vectors with provenance](docs/atlas.png)
+
+```
+cd web && npm install && npm run dev
+```
+
+See `docs/research/` for the twelve research notes, `docs/DERIVATIONS.md` for
+the mathematics, `docs/ARCHITECTURE.md` for the system structure, and
+`docs/diagrams/` for the rendered diagrams.
+
 ## Honesty notes
 
 Lithora does not predict earthquake dates or magnitudes. Where a reconstruction
