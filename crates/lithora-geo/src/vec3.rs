@@ -17,7 +17,11 @@ pub struct Vec3 {
 }
 
 impl Vec3 {
-    pub const ZERO: Vec3 = Vec3 { x: 0.0, y: 0.0, z: 0.0 };
+    pub const ZERO: Vec3 = Vec3 {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+    };
 
     #[inline]
     pub const fn new(x: f64, y: f64, z: f64) -> Self {
@@ -51,17 +55,35 @@ impl Vec3 {
 
     #[inline]
     pub fn scale(self, s: f64) -> Vec3 {
-        Vec3 { x: self.x * s, y: self.y * s, z: self.z * s }
+        Vec3 {
+            x: self.x * s,
+            y: self.y * s,
+            z: self.z * s,
+        }
     }
 
+    // Named `add`/`sub` deliberately: this is a small domain vector used by
+    // value throughout the core, and the explicit method names read clearly
+    // at the call sites (`a.sub(b).norm()`). The operator-trait lint is
+    // allowed for that reason.
     #[inline]
+    #[allow(clippy::should_implement_trait)]
     pub fn add(self, o: Vec3) -> Vec3 {
-        Vec3 { x: self.x + o.x, y: self.y + o.y, z: self.z + o.z }
+        Vec3 {
+            x: self.x + o.x,
+            y: self.y + o.y,
+            z: self.z + o.z,
+        }
     }
 
     #[inline]
+    #[allow(clippy::should_implement_trait)]
     pub fn sub(self, o: Vec3) -> Vec3 {
-        Vec3 { x: self.x - o.x, y: self.y - o.y, z: self.z - o.z }
+        Vec3 {
+            x: self.x - o.x,
+            y: self.y - o.y,
+            z: self.z - o.z,
+        }
     }
 
     /// Return a unit vector in the same direction.

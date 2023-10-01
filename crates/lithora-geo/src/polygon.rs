@@ -115,7 +115,10 @@ pub struct SphericalPolygon {
 
 impl SphericalPolygon {
     pub fn new(outer: SphericalRing) -> Self {
-        SphericalPolygon { outer, holes: Vec::new() }
+        SphericalPolygon {
+            outer,
+            holes: Vec::new(),
+        }
     }
 
     pub fn with_hole(mut self, hole: SphericalRing) -> Self {
@@ -220,8 +223,14 @@ mod tests {
             LatLon::new(10.0, 170.0),
         ])
         .unwrap();
-        assert!(ring.contains(LatLon::new(0.0, 180.0)), "point on dateline should be inside");
-        assert!(!ring.contains(LatLon::new(0.0, 0.0)), "antipodal point should be outside");
+        assert!(
+            ring.contains(LatLon::new(0.0, 180.0)),
+            "point on dateline should be inside"
+        );
+        assert!(
+            !ring.contains(LatLon::new(0.0, 0.0)),
+            "antipodal point should be outside"
+        );
     }
 
     #[test]
@@ -234,8 +243,14 @@ mod tests {
             LatLon::new(80.0, -90.0),
         ])
         .unwrap();
-        assert!(ring.contains(LatLon::new(89.0, 0.0)), "pole region inside the cap");
-        assert!(!ring.contains(LatLon::new(0.0, 0.0)), "equator outside the cap");
+        assert!(
+            ring.contains(LatLon::new(89.0, 0.0)),
+            "pole region inside the cap"
+        );
+        assert!(
+            !ring.contains(LatLon::new(0.0, 0.0)),
+            "equator outside the cap"
+        );
     }
 
     #[test]
@@ -259,7 +274,10 @@ mod tests {
         .unwrap();
         let sa = fwd.signed_area_steradians();
         let sb = rev.signed_area_steradians();
-        assert!(sa * sb < 0.0, "reversed ring must have opposite signed area");
+        assert!(
+            sa * sb < 0.0,
+            "reversed ring must have opposite signed area"
+        );
     }
 
     #[test]
@@ -273,20 +291,29 @@ mod tests {
         ])
         .unwrap();
         let poly = SphericalPolygon::new(outer).with_hole(hole);
-        assert!(poly.contains(LatLon::new(5.0, 5.0)), "between hole and outer");
+        assert!(
+            poly.contains(LatLon::new(5.0, 5.0)),
+            "between hole and outer"
+        );
         assert!(!poly.contains(LatLon::new(0.0, 0.0)), "inside the hole");
     }
 
     #[test]
     fn great_circle_quarter_arc() {
         // From (0,0) to (0,90) is a quarter of the great circle.
-        let d = great_circle_distance_m(LatLon::new(0.0, 0.0), LatLon::new(0.0, 90.0), EARTH_RADIUS_M);
+        let d = great_circle_distance_m(
+            LatLon::new(0.0, 0.0),
+            LatLon::new(0.0, 90.0),
+            EARTH_RADIUS_M,
+        );
         let quarter = 0.5 * std::f64::consts::PI * EARTH_RADIUS_M;
         assert!((d - quarter).abs() < 1.0);
     }
 
     #[test]
     fn degenerate_ring_rejected() {
-        assert!(SphericalRing::from_latlon(&[LatLon::new(0.0, 0.0), LatLon::new(1.0, 1.0)]).is_none());
+        assert!(
+            SphericalRing::from_latlon(&[LatLon::new(0.0, 0.0), LatLon::new(1.0, 1.0)]).is_none()
+        );
     }
 }

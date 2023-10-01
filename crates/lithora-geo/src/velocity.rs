@@ -31,7 +31,9 @@ impl EulerVector {
     /// Build from a pole axis (unit or not) and a rate in radians/Myr.
     pub fn from_axis_rate(axis: Vec3, rate_rad_per_myr: f64) -> Self {
         let a = axis.normalized().unwrap_or(Vec3::ZERO);
-        EulerVector { omega: a.scale(rate_rad_per_myr) }
+        EulerVector {
+            omega: a.scale(rate_rad_per_myr),
+        }
     }
 
     /// Instantaneous surface velocity at a unit-sphere position `r_hat`,
@@ -80,7 +82,9 @@ pub fn stage_angular_velocity(
     let stage = stage_rotation(r_old, r_young);
     let axis = stage.axis()?;
     let rate = stage.angle_rad() / dt;
-    Some(EulerVector { omega: axis.scale(rate) })
+    Some(EulerVector {
+        omega: axis.scale(rate),
+    })
 }
 
 /// Linear surface velocity in mm/yr for a stage, at a unit position.
@@ -146,7 +150,10 @@ mod tests {
         let r_old = Rotation::from_axis_angle(Vec3::new(0.0, 0.0, 1.0), -rate * dt);
         let ev = stage_angular_velocity(r_old, AgeMa(dt), r_young, AgeMa(0.0)).unwrap();
         let v_stage = ev.velocity_at(r_hat);
-        assert!(v_stage.sub(v_analytic).norm() < 1e-9, "stage {:?} vs analytic {:?}", v_stage, v_analytic);
+        assert!(
+            v_stage.sub(v_analytic).norm() < 1e-9,
+            "stage {v_stage:?} vs analytic {v_analytic:?}"
+        );
     }
 
     #[test]
@@ -161,6 +168,12 @@ mod tests {
 
     #[test]
     fn zero_interval_has_no_velocity() {
-        assert!(stage_angular_velocity(Rotation::IDENTITY, AgeMa(5.0), Rotation::IDENTITY, AgeMa(5.0)).is_none());
+        assert!(stage_angular_velocity(
+            Rotation::IDENTITY,
+            AgeMa(5.0),
+            Rotation::IDENTITY,
+            AgeMa(5.0)
+        )
+        .is_none());
     }
 }

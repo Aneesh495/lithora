@@ -41,12 +41,19 @@ impl RotationSequence {
             return Err(GeoError::EmptySequence(moving_plate));
         }
         samples.sort_by(|a, b| a.age.0.partial_cmp(&b.age.0).unwrap());
-        Ok(RotationSequence { moving_plate, fixed_plate, samples })
+        Ok(RotationSequence {
+            moving_plate,
+            fixed_plate,
+            samples,
+        })
     }
 
     /// Youngest and oldest ages covered, in Ma.
     pub fn age_range(&self) -> (AgeMa, AgeMa) {
-        (self.samples[0].age, self.samples[self.samples.len() - 1].age)
+        (
+            self.samples[0].age,
+            self.samples[self.samples.len() - 1].age,
+        )
     }
 
     pub fn samples(&self) -> &[PoleSample] {
@@ -59,14 +66,22 @@ impl RotationSequence {
     pub fn rotation_at(&self, age: AgeMa) -> Result<Rotation> {
         let (min, max) = self.age_range();
         if age.0 < min.0 - 1e-9 || age.0 > max.0 + 1e-9 {
-            return Err(GeoError::AgeOutOfRange { age: age.0, min: min.0, max: max.0 });
+            return Err(GeoError::AgeOutOfRange {
+                age: age.0,
+                min: min.0,
+                max: max.0,
+            });
         }
         // Exact-sample fast path and bracket search.
         for w in self.samples.windows(2) {
             let (a, b) = (w[0], w[1]);
             if age.0 >= a.age.0 - 1e-9 && age.0 <= b.age.0 + 1e-9 {
                 let span = b.age.0 - a.age.0;
-                let t = if span.abs() < 1e-12 { 0.0 } else { (age.0 - a.age.0) / span };
+                let t = if span.abs() < 1e-12 {
+                    0.0
+                } else {
+                    (age.0 - a.age.0) / span
+                };
                 return Ok(slerp(a.rotation, b.rotation, t));
             }
         }
@@ -90,7 +105,12 @@ pub fn slerp(a: Rotation, b: Rotation, t: f64) -> Rotation {
     let mut b = b.normalized();
     let mut dot = a.w * b.w + a.x * b.x + a.y * b.y + a.z * b.z;
     if dot < 0.0 {
-        b = Rotation { w: -b.w, x: -b.x, y: -b.y, z: -b.z };
+        b = Rotation {
+            w: -b.w,
+            x: -b.x,
+            y: -b.y,
+            z: -b.z,
+        };
         dot = -dot;
     }
     if dot > 0.999_999 {
@@ -126,7 +146,10 @@ mod tests {
 
     fn seq() -> RotationSequence {
         let s = vec![
-            PoleSample { age: AgeMa(0.0), rotation: Rotation::IDENTITY },
+            PoleSample {
+                age: AgeMa(0.0),
+                rotation: Rotation::IDENTITY,
+            },
             PoleSample {
                 age: AgeMa(10.0),
                 rotation: Rotation::from_axis_angle(Vec3::new(0.0, 0.0, 1.0), PI / 2.0),
@@ -159,7 +182,10 @@ mod tests {
 
     #[test]
     fn out_of_range_age_is_rejected() {
-        assert!(matches!(seq().rotation_at(AgeMa(20.0)), Err(GeoError::AgeOutOfRange { .. })));
+        assert!(matches!(
+            seq().rotation_at(AgeMa(20.0)),
+            Err(GeoError::AgeOutOfRange { .. })
+        ));
     }
 
     #[test]

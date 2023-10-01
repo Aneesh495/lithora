@@ -74,7 +74,11 @@ mod tests {
         // Geocentric latitude is pulled toward the equator relative to geodetic.
         let gd = 45.0;
         let gc = geodetic_to_geocentric_lat_deg(gd);
-        assert!(gc < gd && gd - gc > 0.1 && gd - gc < 0.2, "diff {}", gd - gc);
+        assert!(
+            gc < gd && gd - gc > 0.1 && gd - gc < 0.2,
+            "diff {}",
+            gd - gc
+        );
     }
 
     #[test]

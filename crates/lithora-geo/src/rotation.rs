@@ -33,7 +33,12 @@ pub struct Rotation {
 
 impl Rotation {
     /// The identity rotation (no motion).
-    pub const IDENTITY: Rotation = Rotation { w: 1.0, x: 0.0, y: 0.0, z: 0.0 };
+    pub const IDENTITY: Rotation = Rotation {
+        w: 1.0,
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+    };
 
     /// Build a rotation from an Euler axis and an angle in radians.
     ///
@@ -77,13 +82,23 @@ impl Rotation {
             return Rotation::IDENTITY;
         }
         let inv = 1.0 / n;
-        Rotation { w: self.w * inv, x: self.x * inv, y: self.y * inv, z: self.z * inv }
+        Rotation {
+            w: self.w * inv,
+            x: self.x * inv,
+            y: self.y * inv,
+            z: self.z * inv,
+        }
     }
 
     /// Canonical sign convention: force `w >= 0` so `q` and `-q` compare equal.
     pub fn canonical(self) -> Rotation {
         if self.w < 0.0 {
-            Rotation { w: -self.w, x: -self.x, y: -self.y, z: -self.z }
+            Rotation {
+                w: -self.w,
+                x: -self.x,
+                y: -self.y,
+                z: -self.z,
+            }
         } else {
             self
         }
@@ -91,7 +106,13 @@ impl Rotation {
 
     /// The inverse rotation (conjugate, since the quaternion is unit length).
     pub fn inverse(self) -> Rotation {
-        Rotation { w: self.w, x: -self.x, y: -self.y, z: -self.z }.canonical()
+        Rotation {
+            w: self.w,
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+        }
+        .canonical()
     }
 
     /// Raw Hamilton product `self.q * rhs.q` (apply `rhs` first, then `self`).
@@ -182,7 +203,10 @@ mod tests {
         let v = Vec3::new(1.0, 0.0, 0.0);
         let ab = a.then(b).apply(v);
         let ba = b.then(a).apply(v);
-        assert!(!vclose(ab, ba, 1e-6), "rotations about different axes must not commute");
+        assert!(
+            !vclose(ab, ba, 1e-6),
+            "rotations about different axes must not commute"
+        );
     }
 
     #[test]
@@ -225,7 +249,12 @@ mod tests {
     #[test]
     fn q_and_negq_equal() {
         let r = Rotation::from_euler_pole(LatLon::new(5.0, 5.0), 30.0);
-        let neg = Rotation { w: -r.w, x: -r.x, y: -r.y, z: -r.z };
+        let neg = Rotation {
+            w: -r.w,
+            x: -r.x,
+            y: -r.y,
+            z: -r.z,
+        };
         assert!(r.angular_distance(neg) < 1e-12);
     }
 

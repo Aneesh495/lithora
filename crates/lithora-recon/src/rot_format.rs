@@ -67,7 +67,10 @@ pub fn parse_rot(text: &str) -> Result<Vec<RotRecord>, RotParseError> {
         }
         let fields: Vec<&str> = trimmed.split_whitespace().collect();
         if fields.len() < 6 {
-            return Err(RotParseError::TooFewFields { line, found: fields.len() });
+            return Err(RotParseError::TooFewFields {
+                line,
+                found: fields.len(),
+            });
         }
         let moving_plate = parse_int(fields[0], line)?;
         let age = parse_f64(fields[1], line)?;
@@ -98,13 +101,14 @@ pub fn group_sequences(records: &[RotRecord]) -> Vec<RotationSequence> {
         by_pair
             .entry((r.moving_plate, r.fixed_plate))
             .or_default()
-            .push(PoleSample { age: r.age, rotation: r.rotation() });
+            .push(PoleSample {
+                age: r.age,
+                rotation: r.rotation(),
+            });
     }
     by_pair
         .into_iter()
-        .filter_map(|((moving, fixed), samples)| {
-            RotationSequence::new(moving, fixed, samples).ok()
-        })
+        .filter_map(|((moving, fixed), samples)| RotationSequence::new(moving, fixed, samples).ok())
         .collect()
 }
 
@@ -118,11 +122,17 @@ fn strip_comment(line: &str) -> &str {
 fn parse_int(s: &str, line: usize) -> Result<i64, RotParseError> {
     s.parse::<i64>()
         .or_else(|_| s.parse::<f64>().map(|v| v as i64))
-        .map_err(|_| RotParseError::BadNumber { line, field: s.to_string() })
+        .map_err(|_| RotParseError::BadNumber {
+            line,
+            field: s.to_string(),
+        })
 }
 
 fn parse_f64(s: &str, line: usize) -> Result<f64, RotParseError> {
-    s.parse::<f64>().map_err(|_| RotParseError::BadNumber { line, field: s.to_string() })
+    s.parse::<f64>().map_err(|_| RotParseError::BadNumber {
+        line,
+        field: s.to_string(),
+    })
 }
 
 #[cfg(test)]

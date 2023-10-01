@@ -27,13 +27,21 @@ pub struct Model {
 impl Model {
     /// Build a model from the text of a rotation file. `anchor` is the plate
     /// every reconstruction is referenced to (commonly 0).
-    pub fn from_rot_text(name: impl Into<String>, anchor: i64, text: &str) -> std::result::Result<Self, RotParseError> {
+    pub fn from_rot_text(
+        name: impl Into<String>,
+        anchor: i64,
+        text: &str,
+    ) -> std::result::Result<Self, RotParseError> {
         let records = parse_rot(text)?;
         let mut circuit = PlateCircuit::new();
         for seq in group_sequences(&records) {
             circuit.add_link(seq);
         }
-        Ok(Model { name: name.into(), anchor, circuit })
+        Ok(Model {
+            name: name.into(),
+            anchor,
+            circuit,
+        })
     }
 
     /// Number of plate links in the circuit.
@@ -59,17 +67,31 @@ impl Model {
                 Err(_) => unsupported += 1,
             }
         }
-        MotionPath { plate, positions, unsupported }
+        MotionPath {
+            plate,
+            positions,
+            unsupported,
+        }
     }
 
     /// Present-day surface speed in mm/yr for a point on `plate`, estimated
     /// from a short stage of width `dt` Ma into the past. A small `dt`
     /// approaches the instantaneous velocity; the caller picks the scale.
     pub fn present_speed_mm_per_yr(&self, point: LatLon, plate: i64, dt_ma: f64) -> Result<f64> {
-        let r_young = self.circuit.total_rotation(plate, self.anchor, AgeMa(0.0))?;
-        let r_old = self.circuit.total_rotation(plate, self.anchor, AgeMa(dt_ma))?;
-        Ok(stage_speed_mm_per_yr(r_old, AgeMa(dt_ma), r_young, AgeMa(0.0), point.to_unit_vec())
-            .unwrap_or(0.0))
+        let r_young = self
+            .circuit
+            .total_rotation(plate, self.anchor, AgeMa(0.0))?;
+        let r_old = self
+            .circuit
+            .total_rotation(plate, self.anchor, AgeMa(dt_ma))?;
+        Ok(stage_speed_mm_per_yr(
+            r_old,
+            AgeMa(dt_ma),
+            r_young,
+            AgeMa(0.0),
+            point.to_unit_vec(),
+        )
+        .unwrap_or(0.0))
     }
 }
 
@@ -94,7 +116,9 @@ mod tests {
     #[test]
     fn present_day_point_unmoved() {
         let m = Model::from_rot_text("synthetic", 0, MODEL).unwrap();
-        let p = m.reconstruct_point(LatLon::new(0.0, 30.0), 801, AgeMa(0.0)).unwrap();
+        let p = m
+            .reconstruct_point(LatLon::new(0.0, 30.0), 801, AgeMa(0.0))
+            .unwrap();
         assert!((p.lat_deg).abs() < 1e-9 && (p.lon_deg - 30.0).abs() < 1e-9);
     }
 
@@ -124,7 +148,9 @@ mod tests {
     #[test]
     fn present_speed_is_positive_for_moving_plate() {
         let m = Model::from_rot_text("synthetic", 0, MODEL).unwrap();
-        let speed = m.present_speed_mm_per_yr(LatLon::new(0.0, 90.0), 801, 1.0).unwrap();
+        let speed = m
+            .present_speed_mm_per_yr(LatLon::new(0.0, 90.0), 801, 1.0)
+            .unwrap();
         assert!(speed > 0.0);
     }
 }

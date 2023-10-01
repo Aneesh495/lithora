@@ -73,7 +73,7 @@ fn angle_axis_round_trip() {
     for i in 0..N_RANDOM {
         let r = rng.rotation();
         let angle = r.angle_rad();
-        assert!(angle >= 0.0 && angle <= std::f64::consts::PI + ANGLE_TOL);
+        assert!((0.0..=std::f64::consts::PI + ANGLE_TOL).contains(&angle));
         if angle > 1e-8 {
             let axis = r.axis().unwrap();
             let rebuilt = Rotation::from_axis_angle(axis, angle);
@@ -108,7 +108,9 @@ fn slerp_angle_is_monotone() {
         let a = rng.rotation();
         let b = rng.rotation();
         let dist_ab = a.angular_distance(b);
-        if dist_ab < 1e-6 { continue; }
+        if dist_ab < 1e-6 {
+            continue;
+        }
         let mut prev_dist_from_a = 0.0;
         for step in 0..=10 {
             let t = step as f64 / 10.0;
@@ -179,10 +181,7 @@ fn containment_property_tests() {
         tested += 1;
         // Distant random points should be outside.
         for _ in 0..10 {
-            let far = LatLon::new(
-                rng.range(-90.0, 90.0),
-                rng.range(-180.0, 180.0),
-            );
+            let far = LatLon::new(rng.range(-90.0, 90.0), rng.range(-180.0, 180.0));
             let _ = ring.contains(far); // Just ensure no panic/NaN
             tested += 1;
         }
@@ -198,7 +197,8 @@ fn adversarial_polar_and_dateline() {
         LatLon::new(85.0, 90.0),
         LatLon::new(85.0, 180.0),
         LatLon::new(85.0, -90.0),
-    ]).unwrap();
+    ])
+    .unwrap();
     assert!(cap.contains(LatLon::new(89.99, 0.0)));
     assert!(cap.contains(LatLon::new(89.99, 123.0)));
     assert!(!cap.contains(LatLon::new(0.0, 0.0)));
@@ -209,7 +209,8 @@ fn adversarial_polar_and_dateline() {
         LatLon::new(-85.0, -90.0),
         LatLon::new(-85.0, 180.0),
         LatLon::new(-85.0, 90.0),
-    ]).unwrap();
+    ])
+    .unwrap();
     assert!(scap.contains(LatLon::new(-89.99, 0.0)));
     assert!(!scap.contains(LatLon::new(0.0, 0.0)));
 
@@ -219,7 +220,8 @@ fn adversarial_polar_and_dateline() {
         LatLon::new(-5.0, -175.0),
         LatLon::new(5.0, -175.0),
         LatLon::new(5.0, 175.0),
-    ]).unwrap();
+    ])
+    .unwrap();
     assert!(abox.contains(LatLon::new(0.0, 180.0)));
     assert!(abox.contains(LatLon::new(0.0, -179.0)));
     assert!(!abox.contains(LatLon::new(0.0, 0.0)));
@@ -230,8 +232,8 @@ fn adversarial_polar_and_dateline() {
 
 #[test]
 fn velocity_cross_product_differential() {
-    use lithora_geo::velocity::{EulerVector, stage_angular_velocity};
     use lithora_geo::units::AgeMa;
+    use lithora_geo::velocity::{stage_angular_velocity, EulerVector};
 
     let mut rng = Rng::new(9000);
     for _ in 0..10_000 {

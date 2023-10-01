@@ -45,7 +45,9 @@ pub struct PlateCircuit {
 
 impl PlateCircuit {
     pub fn new() -> Self {
-        PlateCircuit { links: HashMap::new() }
+        PlateCircuit {
+            links: HashMap::new(),
+        }
     }
 
     /// Insert a link describing how `moving_plate` moves relative to its
@@ -111,15 +113,20 @@ mod tests {
     use crate::coord::LatLon;
     use crate::sequence::PoleSample;
     use crate::vec3::Vec3;
-    use std::f64::consts::PI;
 
     fn const_seq(moving: i64, fixed: i64, r: Rotation) -> RotationSequence {
         RotationSequence::new(
             moving,
             fixed,
             vec![
-                PoleSample { age: AgeMa(0.0), rotation: Rotation::IDENTITY },
-                PoleSample { age: AgeMa(100.0), rotation: r },
+                PoleSample {
+                    age: AgeMa(0.0),
+                    rotation: Rotation::IDENTITY,
+                },
+                PoleSample {
+                    age: AgeMa(100.0),
+                    rotation: r,
+                },
             ],
         )
         .unwrap()
@@ -175,7 +182,10 @@ mod tests {
         let mut c = PlateCircuit::new();
         c.add_link(const_seq(2, 1, Rotation::IDENTITY));
         // Plate 1 has no link to anchor 0.
-        assert!(matches!(c.total_rotation(2, 0, AgeMa(50.0)), Err(GeoError::NoCircuitPath { .. })));
+        assert!(matches!(
+            c.total_rotation(2, 0, AgeMa(50.0)),
+            Err(GeoError::NoCircuitPath { .. })
+        ));
     }
 
     #[test]
@@ -183,19 +193,34 @@ mod tests {
         let mut c = PlateCircuit::new();
         c.add_link(const_seq(1, 2, Rotation::IDENTITY));
         c.add_link(const_seq(2, 1, Rotation::IDENTITY));
-        assert!(matches!(c.total_rotation(1, 0, AgeMa(50.0)), Err(GeoError::CircuitCycle(_))));
+        assert!(matches!(
+            c.total_rotation(1, 0, AgeMa(50.0)),
+            Err(GeoError::CircuitCycle(_))
+        ));
     }
 
     #[test]
     fn age_beyond_link_range_is_rejected() {
         let mut c = PlateCircuit::new();
-        c.add_link(const_seq(1, 0, Rotation::from_euler_pole(LatLon::new(0.0, 0.0), 5.0)));
-        assert!(matches!(c.total_rotation(1, 0, AgeMa(200.0)), Err(GeoError::AgeOutOfRange { .. })));
+        c.add_link(const_seq(
+            1,
+            0,
+            Rotation::from_euler_pole(LatLon::new(0.0, 0.0), 5.0),
+        ));
+        assert!(matches!(
+            c.total_rotation(1, 0, AgeMa(200.0)),
+            Err(GeoError::AgeOutOfRange { .. })
+        ));
     }
 
     #[test]
     fn anchor_equals_moving_is_identity() {
         let c = PlateCircuit::new();
-        assert!(c.total_rotation(5, 5, AgeMa(10.0)).unwrap().angular_distance(Rotation::IDENTITY) < 1e-15);
+        assert!(
+            c.total_rotation(5, 5, AgeMa(10.0))
+                .unwrap()
+                .angular_distance(Rotation::IDENTITY)
+                < 1e-15
+        );
     }
 }

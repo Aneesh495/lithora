@@ -24,7 +24,11 @@ const DEMO_ROT: &str = "\
 ";
 
 #[derive(Parser)]
-#[command(name = "lithora", version, about = "Tectonic reconstruction and kinematics core")]
+#[command(
+    name = "lithora",
+    version,
+    about = "Tectonic reconstruction and kinematics core"
+)]
 struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -82,7 +86,14 @@ fn load_model(rot: &Option<String>, anchor: i64) -> Result<Model> {
 fn main() -> Result<()> {
     let cli = Cli::parse();
     match cli.command {
-        Command::Reconstruct { rot, anchor, plate, lat, lon, age } => {
+        Command::Reconstruct {
+            rot,
+            anchor,
+            plate,
+            lat,
+            lon,
+            age,
+        } => {
             let model = load_model(&rot, anchor)?;
             let p = model
                 .reconstruct_point(LatLon::new(lat, lon), plate, AgeMa(age))
@@ -98,7 +109,14 @@ fn main() -> Result<()> {
                 })
             );
         }
-        Command::Velocity { rot, anchor, plate, lat, lon, dt } => {
+        Command::Velocity {
+            rot,
+            anchor,
+            plate,
+            lat,
+            lon,
+            dt,
+        } => {
             let model = load_model(&rot, anchor)?;
             let speed = model
                 .present_speed_mm_per_yr(LatLon::new(lat, lon), plate, dt)
@@ -121,14 +139,21 @@ fn main() -> Result<()> {
 
 fn run_demo() -> Result<()> {
     let model = load_model(&None, 0)?;
-    println!("Lithora demo on synthetic model '{}' ({} links)", model.name, model.link_count());
+    println!(
+        "Lithora demo on synthetic model '{}' ({} links)",
+        model.name,
+        model.link_count()
+    );
     let point = LatLon::new(12.0, 45.0);
     println!("Tracking a point on plate 801 at (12 N, 45 E):");
     for age in [0.0, 25.0, 50.0, 75.0, 100.0] {
         let p = model
             .reconstruct_point(point, 801, AgeMa(age))
             .map_err(|e| anyhow::anyhow!("{e}"))?;
-        println!("  {age:6.1} Ma -> ({:8.4} N, {:9.4} E)", p.lat_deg, p.lon_deg);
+        println!(
+            "  {age:6.1} Ma -> ({:8.4} N, {:9.4} E)",
+            p.lat_deg, p.lon_deg
+        );
     }
     let speed = model
         .present_speed_mm_per_yr(point, 801, 1.0)
