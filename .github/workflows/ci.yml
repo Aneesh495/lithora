@@ -30,6 +30,8 @@ jobs:
         run: cargo test --workspace
       - name: G01 property campaign
         run: cargo test -p lithora-geo --test g01_geometry --release
+      - name: G02 reconstruction reference
+        run: cargo test -p lithora-geo --test g02_reconstruction --release
 
   python:
     name: Python inference
