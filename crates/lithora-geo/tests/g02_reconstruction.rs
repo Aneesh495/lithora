@@ -85,6 +85,9 @@ fn composed_reconstruction_matches_sequential_reference() {
         let reference = rodrigues_apply(axis2, angle2, ref1);
 
         let diff = angular_diff(engine, reference);
-        assert!(diff < TOL_RAD, "case {i}: composed diff {diff} exceeds {TOL_RAD}");
+        assert!(
+            diff < TOL_RAD,
+            "case {i}: composed diff {diff} exceeds {TOL_RAD}"
+        );
     }
 }
