@@ -10,6 +10,7 @@ authoritative reconstruction and kinematics engine lives in the Rust
 from __future__ import annotations
 
 from .euler_fit import EulerFit, fit_euler_pole, predict_velocities
+from .strain import StrainResult, strain_rate_at, strain_scale_sweep
 from .sphere import (
     EARTH_RADIUS_M,
     euler_velocity,
@@ -27,6 +28,9 @@ __all__ = [
     "latlon_to_unit",
     "local_enu_basis",
     "unit_to_latlon",
+    "StrainResult",
+    "strain_rate_at",
+    "strain_scale_sweep",
 ]
 
 __version__ = "0.1.0"
