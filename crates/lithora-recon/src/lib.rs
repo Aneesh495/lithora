@@ -9,7 +9,9 @@
 //! It depends on the geometry core for all mathematics and adds only the
 //! input/output and model-assembly layer.
 
+pub mod compare;
 pub mod reconstruct;
 pub mod rot_format;
 
+pub use compare::{compare_point, summarize, ComparisonPoint, ComparisonSummary};
 pub use reconstruct::{Model, MotionPath};

@@ -66,6 +66,24 @@ enum Command {
         #[arg(long, default_value_t = 1.0)]
         dt: f64,
     },
+    /// Compare two rotation models at matched ages, reporting disagreement.
+    Compare {
+        #[arg(long)]
+        rot_a: String,
+        #[arg(long)]
+        rot_b: String,
+        #[arg(long, default_value_t = 0)]
+        anchor: i64,
+        #[arg(long)]
+        plate: i64,
+        #[arg(long)]
+        lat: f64,
+        #[arg(long)]
+        lon: f64,
+        /// Comma-separated ages in Ma, e.g. 0,25,50,100.
+        #[arg(long)]
+        ages: String,
+    },
     /// Run a bounded end-to-end demo on the built-in synthetic model.
     Demo,
 }
@@ -129,6 +147,65 @@ fn main() -> Result<()> {
                     "point": {"lat": lat, "lon": lon},
                     "stage_dt_ma": dt,
                     "speed_mm_per_yr": speed,
+                })
+            );
+        }
+        Command::Compare {
+            rot_a,
+            rot_b,
+            anchor,
+            plate,
+            lat,
+            lon,
+            ages,
+        } => {
+            let model_a = load_model(&Some(rot_a), anchor)?;
+            let model_b = load_model(&Some(rot_b), anchor)?;
+            let age_vals: Vec<AgeMa> = ages
+                .split(',')
+                .filter_map(|s| s.trim().parse::<f64>().ok())
+                .map(AgeMa)
+                .collect();
+            let pts = lithora_recon::compare_point(
+                &model_a,
+                &model_b,
+                LatLon::new(lat, lon),
+                plate,
+                &age_vals,
+            );
+            let summary = lithora_recon::summarize(&pts);
+            let rows: Vec<serde_json::Value> = pts
+                .iter()
+                .map(|p| match p {
+                    lithora_recon::ComparisonPoint::Compared {
+                        age,
+                        angular_diff_rad,
+                        pos_a,
+                        pos_b,
+                    } => {
+                        serde_json::json!({
+                            "age_ma": age.0,
+                            "angular_diff_rad": angular_diff_rad,
+                            "angular_diff_deg": angular_diff_rad.to_degrees(),
+                            "pos_a": {"lat": pos_a.lat_deg, "lon": pos_a.lon_deg},
+                            "pos_b": {"lat": pos_b.lat_deg, "lon": pos_b.lon_deg},
+                        })
+                    }
+                    lithora_recon::ComparisonPoint::Unavailable { age, reason } => {
+                        serde_json::json!({"age_ma": age.0, "unavailable": reason})
+                    }
+                })
+                .collect();
+            println!(
+                "{}",
+                serde_json::json!({
+                    "plate": plate,
+                    "point": {"lat": lat, "lon": lon},
+                    "n_compared": summary.n_compared,
+                    "n_unavailable": summary.n_unavailable,
+                    "max_angular_diff_deg": summary.max_angular_diff_rad.to_degrees(),
+                    "mean_angular_diff_deg": summary.mean_angular_diff_rad.to_degrees(),
+                    "points": rows,
                 })
             );
         }
