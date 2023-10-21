@@ -79,7 +79,7 @@ paper:
 ## ---- heavier phases ----
 
 bench:
-	cargo test --workspace --release -- --nocapture bench_ 2>/dev/null || echo "add benches as needed"
+	cargo bench -p lithora-geo --bench reconstruct_throughput
 
 stress:
 	@echo "Stress campaign not yet wired; see docs/EXPERIMENT_PLAN.md"

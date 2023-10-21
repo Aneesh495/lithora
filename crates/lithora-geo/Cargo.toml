@@ -14,3 +14,7 @@ thiserror = { workspace = true }
 
 [dev-dependencies]
 serde_json = { workspace = true }
+
+[[bench]]
+name = "reconstruct_throughput"
+harness = false
