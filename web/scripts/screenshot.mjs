@@ -23,8 +23,17 @@ const browser = await puppeteer.launch({
 const page = await browser.newPage();
 await page.setViewport({ width: 1400, height: 900 });
 await page.goto(url, { waitUntil: "networkidle2", timeout: 60000 });
-// Give Cesium time to initialize the globe and render the vectors.
-await new Promise((r) => setTimeout(r, 6000));
+// Give Cesium time to initialize the globe and load the region data.
+await new Promise((r) => setTimeout(r, 5000));
+
+// Optionally exercise controls: switch to the residual layer and enable the
+// earthquake context, so the screenshot shows a scientifically meaningful view.
+if (process.argv[4] === "residual") {
+  await page.select("#layer", "residual");
+  await page.click("#showQuakes");
+  await new Promise((r) => setTimeout(r, 2500));
+}
+
 await page.screenshot({ path: out });
 await browser.close();
 console.log("wrote", out);

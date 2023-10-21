@@ -20,7 +20,13 @@ import {
   defined,
 } from "cesium";
 import { arrowTip, latLonToEcef, speed } from "./geo";
-import { LayerKind, RegionPayload, StationRecord, layerVelocity } from "./types";
+import {
+  LayerKind,
+  QuakePayload,
+  RegionPayload,
+  StationRecord,
+  layerVelocity,
+} from "./types";
 
 // The globe uses only open imagery that ships with Cesium; no Ion token needed.
 Ion.defaultAccessToken = "";
@@ -51,31 +57,56 @@ const FOLD_COLORS = [
 
 interface State {
   payload: RegionPayload | null;
+  quakes: QuakePayload | null;
+  region: string;
   layer: LayerKind;
   exaggeration: number;
   showUnc: boolean;
   showHoldout: boolean;
+  showQuakes: boolean;
   generation: number; // bumped on each region load to cancel stale loads
 }
 
 const state: State = {
   payload: null,
+  quakes: null,
+  region: "cal",
   layer: "obs",
-  exaggeration: 40,
+  exaggeration: 8,
   showUnc: true,
   showHoldout: false,
+  showQuakes: false,
   generation: 0,
 };
+
+// Color an earthquake by focal depth: shallow is warm, deep is cool.
+function depthColor(depthKm: number): Color {
+  const t = Math.min(1, Math.max(0, depthKm / 200));
+  return Color.fromHsl(0.6 * t, 0.9, 0.55);
+}
 
 const METRES_PER_MM_YR = 3000;
 
 async function loadRegion(region: string): Promise<void> {
   const gen = ++state.generation;
+  state.region = region;
   const resp = await fetch(`/data/${region}.json`);
   const payload = (await resp.json()) as RegionPayload;
   // If another region was requested while we were fetching, drop this result.
   if (gen !== state.generation) return;
   state.payload = payload;
+
+  // Load the matching earthquake context layer if present.
+  try {
+    const qresp = await fetch(`/data/quakes_${region}.json`);
+    if (qresp.ok && gen === state.generation) {
+      state.quakes = (await qresp.json()) as QuakePayload;
+    }
+  } catch {
+    state.quakes = null;
+  }
+  if (gen !== state.generation) return;
+
   updateProvenance();
   render();
   flyToData(payload.stations);
@@ -127,7 +158,37 @@ function render(): void {
     });
     (ent as unknown as { _station: StationRecord })._station = s;
   }
+
+  if (state.showQuakes && state.quakes) {
+    for (const q of state.quakes.events) {
+      const pos = latLonToEcef(q.lat, q.lon);
+      viewer.entities.add({
+        position: pos,
+        point: {
+          pixelSize: Math.max(4, q.mag * 2.2),
+          color: depthColor(q.depth_km).withAlpha(0.7),
+          outlineColor: Color.BLACK,
+          outlineWidth: 1,
+        },
+      });
+    }
+  }
   updateLegend();
+  updateQuakeNote();
+}
+
+function updateQuakeNote(): void {
+  const el = document.getElementById("quakeNote");
+  if (!el) return;
+  if (state.showQuakes && state.quakes) {
+    const q = state.quakes;
+    el.textContent =
+      `${q.n_events} events M>=${q.min_magnitude}, ${q.window.start} to ` +
+      `${q.window.end}. Color is focal depth, size is magnitude. ` +
+      `Completeness varies by region and era; proximity alone proves no mechanism.`;
+  } else {
+    el.textContent = "";
+  }
 }
 
 // Cesium's PolylineCollection material API differs across versions; this keeps
@@ -232,6 +293,12 @@ function bindUi(): void {
   const showHoldout = document.getElementById("showHoldout") as HTMLInputElement;
   showHoldout.addEventListener("change", () => {
     state.showHoldout = showHoldout.checked;
+    render();
+  });
+
+  const showQuakes = document.getElementById("showQuakes") as HTMLInputElement;
+  showQuakes.addEventListener("change", () => {
+    state.showQuakes = showQuakes.checked;
     render();
   });
 }

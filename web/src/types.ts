@@ -27,6 +27,26 @@ export interface RegionPayload {
   stations: StationRecord[];
 }
 
+export interface QuakeEvent {
+  id: string;
+  lat: number;
+  lon: number;
+  depth_km: number;
+  mag: number;
+  mag_type: string;
+  time_ms: number;
+}
+
+export interface QuakePayload {
+  region: string;
+  source: string;
+  window: { start: string; end: string };
+  min_magnitude: number;
+  completeness_note: string;
+  n_events: number;
+  events: QuakeEvent[];
+}
+
 export type LayerKind = "obs" | "rigid" | "residual" | "local";
 
 // Return the (east, north) velocity for the chosen layer in mm/yr.
