@@ -142,6 +142,47 @@ def cmd_spatial_evaluate(args):
     print(json.dumps(summary, indent=2))
 
 
+def cmd_leave_region_out(args):
+    """Train on one region and test on another, measuring transfer.
+
+    This is the leave-region-out experiment: it quantifies how well a model
+    fit on one tectonic setting predicts another, which is the hardest and
+    most honest generalisation test. A rigid pole fit on a quiet interior
+    should transfer poorly to a deforming margin, and the numbers show it.
+    """
+    field = _load_field(args.frame).eligible(args.min_years)
+    a = field.arrays()
+    train_mask, train_label = _region_mask(a["lat"], a["lon"], args.train_region)
+    test_mask, test_label = _region_mask(a["lat"], a["lon"], args.test_region)
+
+    tr = np.where(train_mask)[0]
+    te = np.where(test_mask)[0]
+    if tr.size < 10 or te.size < 10:
+        print(json.dumps({"error": "too few stations", "n_train": int(tr.size), "n_test": int(te.size)}))
+        return
+
+    lat, lon, vel, cov = a["lat"], a["lon"], a["vel_en"], a["cov_en"]
+    rigid = RigidOnly.fit(lat[tr], lon[tr], vel[tr], cov[tr])
+    local = LocalRegression.fit(lat[tr], lon[tr], vel[tr], cov[tr], bandwidth_deg=args.bandwidth)
+
+    from .evaluate import distance_to_training, velocity_metrics
+
+    d2t = distance_to_training(lat[te], lon[te], lat[tr], lon[tr])
+    rigid_m = velocity_metrics(rigid.predict(lat[te], lon[te]), vel[te], dist_to_train_rad=d2t)
+    local_m = velocity_metrics(local.predict(lat[te], lon[te]), vel[te], dist_to_train_rad=d2t)
+
+    print(json.dumps({
+        "train_region": train_label,
+        "test_region": test_label,
+        "n_train": int(tr.size),
+        "n_test": int(te.size),
+        "median_test_distance_to_train_deg": round(float(np.degrees(np.median(d2t))), 2),
+        "rigid_test_rmse_mm_yr": round(rigid_m.vector_rmse, 3),
+        "local_test_rmse_mm_yr": round(local_m.vector_rmse, 3),
+        "note": "cross-region transfer; large distance to training network is expected",
+    }, indent=2))
+
+
 def cmd_train(args):
     from .graph_model import torch_available
 
@@ -207,6 +248,14 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--buffer", type=float, default=0.5)
     e.add_argument("--bandwidth", type=float, default=2.0)
     e.set_defaults(func=cmd_spatial_evaluate)
+
+    lro = sub.add_parser("leave-region-out", help="train on one region, test on another")
+    lro.add_argument("--frame", default="IGS14")
+    lro.add_argument("--train-region", default="na")
+    lro.add_argument("--test-region", default="cal")
+    lro.add_argument("--min-years", type=float, default=5.0)
+    lro.add_argument("--bandwidth", type=float, default=1.5)
+    lro.set_defaults(func=cmd_leave_region_out)
 
     t = sub.add_parser("train", help="train the spherical graph residual model")
     t.add_argument("--frame", default="IGS14")
