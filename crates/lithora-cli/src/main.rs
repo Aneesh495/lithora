@@ -84,6 +84,22 @@ enum Command {
         #[arg(long)]
         ages: String,
     },
+    /// Emit a motion path (reconstructed positions over a set of ages) as JSON.
+    MotionPath {
+        #[arg(long)]
+        rot: Option<String>,
+        #[arg(long, default_value_t = 0)]
+        anchor: i64,
+        #[arg(long)]
+        plate: i64,
+        #[arg(long)]
+        lat: f64,
+        #[arg(long)]
+        lon: f64,
+        /// Start, end, and step ages in Ma, e.g. 0:100:10.
+        #[arg(long, default_value = "0:100:10")]
+        ages: String,
+    },
     /// Run a bounded end-to-end demo on the built-in synthetic model.
     Demo,
 }
@@ -209,9 +225,64 @@ fn main() -> Result<()> {
                 })
             );
         }
+        Command::MotionPath {
+            rot,
+            anchor,
+            plate,
+            lat,
+            lon,
+            ages,
+        } => {
+            let model = load_model(&rot, anchor)?;
+            let age_vals = parse_age_range(&ages)?;
+            let path = model.motion_path(LatLon::new(lat, lon), plate, &age_vals);
+            let positions: Vec<serde_json::Value> = path
+                .positions
+                .iter()
+                .map(|(age, p)| {
+                    serde_json::json!({"age_ma": age.0, "lat": p.lat_deg, "lon": p.lon_deg})
+                })
+                .collect();
+            println!(
+                "{}",
+                serde_json::json!({
+                    "model": model.name,
+                    "plate": plate,
+                    "input": {"lat": lat, "lon": lon},
+                    "n_supported": path.positions.len(),
+                    "n_unsupported": path.unsupported,
+                    "positions": positions,
+                })
+            );
+        }
         Command::Demo => run_demo()?,
     }
     Ok(())
+}
+
+/// Parse a `start:end:step` age range in Ma into a vector of ages.
+fn parse_age_range(spec: &str) -> Result<Vec<AgeMa>> {
+    let parts: Vec<f64> = spec
+        .split(':')
+        .map(|s| s.trim().parse::<f64>())
+        .collect::<std::result::Result<_, _>>()
+        .map_err(|_| anyhow::anyhow!("invalid age range '{spec}', expected start:end:step"))?;
+    if parts.len() != 3 {
+        return Err(anyhow::anyhow!(
+            "age range must be start:end:step, got '{spec}'"
+        ));
+    }
+    let (start, end, step) = (parts[0], parts[1], parts[2]);
+    if step <= 0.0 {
+        return Err(anyhow::anyhow!("age step must be positive"));
+    }
+    let mut ages = Vec::new();
+    let mut a = start;
+    while a <= end + 1e-9 {
+        ages.push(AgeMa(a));
+        a += step;
+    }
+    Ok(ages)
 }
 
 fn run_demo() -> Result<()> {
