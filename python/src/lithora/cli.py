@@ -142,6 +142,33 @@ def cmd_spatial_evaluate(args):
     print(json.dumps(summary, indent=2))
 
 
+def cmd_strain(args):
+    """Estimate the strain-rate tensor at a point across smoothing scales."""
+    from .strain import strain_scale_sweep
+
+    field = _load_field(args.frame).eligible(args.min_years)
+    a = field.arrays()
+    lat, lon, vel = a["lat"], a["lon"], a["vel_en"]
+    near = (np.abs(lat - args.lat) < 4) & (np.abs(lon - args.lon) < 4)
+    scales = [float(s) for s in args.scales.split(",")]
+    results = strain_scale_sweep(args.lat, args.lon, lat[near], lon[near], vel[near], scales)
+    print(json.dumps({
+        "point": {"lat": args.lat, "lon": args.lon},
+        "frame": args.frame,
+        "units": "nanostrain/yr",
+        "sweep": [
+            {
+                "scale_deg": r.smoothing_scale_deg,
+                "dilatation": round(r.dilatation, 2),
+                "max_shear": round(r.max_shear, 2),
+                "principal_azimuth_deg": round(r.principal_angle_deg, 1),
+                "n_effective": round(r.n_effective, 1),
+            }
+            for r in results
+        ],
+    }, indent=2))
+
+
 def cmd_leave_region_out(args):
     """Train on one region and test on another, measuring transfer.
 
@@ -248,6 +275,14 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--buffer", type=float, default=0.5)
     e.add_argument("--bandwidth", type=float, default=2.0)
     e.set_defaults(func=cmd_spatial_evaluate)
+
+    st = sub.add_parser("strain", help="strain-rate tensor at a point across scales")
+    st.add_argument("--frame", default="IGS14")
+    st.add_argument("--lat", type=float, required=True)
+    st.add_argument("--lon", type=float, required=True)
+    st.add_argument("--min-years", type=float, default=5.0)
+    st.add_argument("--scales", default="0.3,0.5,1.0,1.5,2.0")
+    st.set_defaults(func=cmd_strain)
 
     lro = sub.add_parser("leave-region-out", help="train on one region, test on another")
     lro.add_argument("--frame", default="IGS14")
