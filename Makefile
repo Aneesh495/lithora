@@ -11,7 +11,7 @@ PIP := $(VENV)/bin/pip
 PYTEST := $(VENV)/bin/pytest
 
 .PHONY: all bootstrap doctor build test data demo bench stress docs acceptance verify negative-controls release \
-        acquire-gnss reconstruct fit-plates train spatial-evaluate atlas paper clean
+        acquire-gnss acquire-quakes export-web reconstruct fit-plates train spatial-evaluate atlas paper clean
 
 all: build test
 
@@ -55,8 +55,19 @@ test-python: $(VENV)
 demo:
 	cargo run -p lithora-cli -- demo
 
+data: acquire-gnss acquire-quakes export-web
+	@echo "data acquired and exported for the atlas"
+
 acquire-gnss: $(VENV)
 	$(PY) -m lithora.cli acquire-gnss --frame IGS14
+
+acquire-quakes: $(VENV)
+	$(PY) -m lithora.export_quakes --region cal --start 2014-01-01 --end 2024-01-01 --min-mag 4.0 --out web/public/data/quakes_cal.json
+	$(PY) -m lithora.export_quakes --region na --start 2014-01-01 --end 2024-01-01 --min-mag 4.0 --out web/public/data/quakes_na.json
+
+export-web: $(VENV)
+	$(PY) -m lithora.export_web --frame IGS14 --region cal --out web/public/data/cal.json
+	$(PY) -m lithora.export_web --frame IGS14 --region na --out web/public/data/na.json
 
 reconstruct:
 	cargo run -p lithora-cli -- reconstruct --plate 801 --lat 12 --lon 45 --age 50
@@ -73,8 +84,11 @@ spatial-evaluate: $(VENV)
 atlas:
 	@echo "Interactive globe under web/ (see web/README.md). Run: cd web && npm install && npm run dev"
 
-paper:
-	@echo "Research report under docs/research/. See docs/research/README.md"
+paper: $(VENV)
+	@echo "Regenerating reproducible views behind the research notes..."
+	$(PY) notebooks/01_regional_comparison.py
+	$(PY) notebooks/02_strain_scale_sweep.py
+	@echo "Research report: docs/research/ (12 notes) and docs/FINDINGS.md"
 
 ## ---- heavier phases ----
 
