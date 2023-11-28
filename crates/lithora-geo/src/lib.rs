@@ -27,6 +27,7 @@ pub mod circuit;
 pub mod coord;
 pub mod ellipsoid;
 pub mod error;
+pub mod flowline;
 pub mod polygon;
 pub mod rotation;
 pub mod sequence;
