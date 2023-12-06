@@ -142,6 +142,36 @@ def cmd_spatial_evaluate(args):
     print(json.dumps(summary, indent=2))
 
 
+def cmd_outliers(args):
+    """Flag residual outliers in a region with provenance for investigation."""
+    from .outliers import investigate_residuals
+
+    field = _load_field(args.frame).eligible(args.min_years)
+    a = field.arrays()
+    mask, label = _region_mask(a["lat"], a["lon"], args.region)
+    idx = np.where(mask)[0]
+    ids = [field.stations[i].station_id for i in idx]
+    out = investigate_residuals(
+        ids, a["lat"][mask], a["lon"][mask], a["vel_en"][mask], a["cov_en"][mask],
+        a["duration_yr"][mask], z_threshold=args.z,
+    )
+    print(json.dumps({
+        "region": label,
+        "frame": args.frame,
+        "n_outliers": len(out),
+        "z_threshold": args.z,
+        "top": [
+            {
+                "id": o.station_id, "lat": round(o.lat, 3), "lon": round(o.lon, 3),
+                "residual_mm_yr": round(o.residual_speed_mm_yr, 2),
+                "robust_z": round(o.robust_z, 1), "duration_yr": round(o.duration_yr, 1),
+                "note": o.note,
+            }
+            for o in out[:10]
+        ],
+    }, indent=2))
+
+
 def cmd_strain(args):
     """Estimate the strain-rate tensor at a point across smoothing scales."""
     from .strain import strain_scale_sweep
@@ -275,6 +305,13 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--buffer", type=float, default=0.5)
     e.add_argument("--bandwidth", type=float, default=2.0)
     e.set_defaults(func=cmd_spatial_evaluate)
+
+    ol = sub.add_parser("outliers", help="flag residual outliers in a region")
+    ol.add_argument("--frame", default="IGS14")
+    ol.add_argument("--region", default="na")
+    ol.add_argument("--min-years", type=float, default=5.0)
+    ol.add_argument("--z", type=float, default=5.0)
+    ol.set_defaults(func=cmd_outliers)
 
     st = sub.add_parser("strain", help="strain-rate tensor at a point across scales")
     st.add_argument("--frame", default="IGS14")
