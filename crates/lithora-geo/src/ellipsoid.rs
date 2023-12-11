@@ -79,26 +79,21 @@ pub fn vincenty_distance_m(
     let (sin_u2, cos_u2) = (u2.sin(), u2.cos());
 
     let mut lambda = l;
-    let mut sin_sigma = 0.0;
-    let mut cos_sigma = 0.0;
-    let mut sigma = 0.0;
-    let mut cos_sq_alpha = 0.0;
-    let mut cos_2sigma_m = 0.0;
 
     for _ in 0..200 {
         let sin_lambda = lambda.sin();
         let cos_lambda = lambda.cos();
-        sin_sigma = ((cos_u2 * sin_lambda).powi(2)
+        let sin_sigma = ((cos_u2 * sin_lambda).powi(2)
             + (cos_u1 * sin_u2 - sin_u1 * cos_u2 * cos_lambda).powi(2))
         .sqrt();
         if sin_sigma == 0.0 {
             return Some(0.0); // coincident points
         }
-        cos_sigma = sin_u1 * sin_u2 + cos_u1 * cos_u2 * cos_lambda;
-        sigma = sin_sigma.atan2(cos_sigma);
+        let cos_sigma = sin_u1 * sin_u2 + cos_u1 * cos_u2 * cos_lambda;
+        let sigma = sin_sigma.atan2(cos_sigma);
         let sin_alpha = cos_u1 * cos_u2 * sin_lambda / sin_sigma;
-        cos_sq_alpha = 1.0 - sin_alpha * sin_alpha;
-        cos_2sigma_m = if cos_sq_alpha != 0.0 {
+        let cos_sq_alpha = 1.0 - sin_alpha * sin_alpha;
+        let cos_2sigma_m = if cos_sq_alpha != 0.0 {
             cos_sigma - 2.0 * sin_u1 * sin_u2 / cos_sq_alpha
         } else {
             0.0 // equatorial line
