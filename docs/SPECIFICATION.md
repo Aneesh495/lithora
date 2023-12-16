@@ -16,8 +16,8 @@ pending; `pending` means designed but not yet built.
 | L05 | Rigid reconstruction, motion paths, stage velocities | `recon/reconstruct.rs`, `geo/velocity.rs` | done |
 | L06 | Spherical polygon containment, dateline, poles, holes | `geo/polygon.rs` | done |
 | L07 | Area and distance with documented assumptions | `geo/polygon.rs` | done |
-| L08 | Cross-model comparison at matched times | inference layer | partial |
-| L09 | Boundary classification where topology supports it | - | pending |
+| L08 | Cross-model comparison at matched times | `recon/compare.rs` + CLI | done |
+| L09 | Boundary classification where topology supports it | `recon/boundary.rs` | done |
 | L10 | GNSS metadata joins and quality flags | `data/ngl.py` | done |
 | L11 | Robust time-series velocity with seasonal/offset/correlated noise | `timeseries.py` | done |
 | L12 | Frame transforms only with verified params; reject unsupported | `data/ngl.py` | done |
@@ -26,24 +26,24 @@ pending; `pending` means designed but not yet built.
 | L15 | Deterministic baselines + GP | `baselines.py`, `gp.py` | done |
 | L16 | Original spherical graph residual model | `graph_model.py` | done |
 | L17 | Physical regularization of residual field | `graph_model.py` (smooth MLP) | partial |
-| L18 | Heteroscedastic vs epistemic uncertainty, ensembles | `train.py` (seeds) | partial |
+| L18 | Heteroscedastic vs epistemic uncertainty, ensembles | `uncertainty.py`, `train.py` seeds | done |
 | L19 | Calibrated regions with spatial block validation | `evaluate.py` | partial |
-| L20 | Spatial/plate/temporal holdouts with buffer | `evaluate.py` | done |
-| L21 | Strain-rate tensor from differentiable fields | - | pending |
-| L22 | Residual outlier investigation with provenance | `evaluate.py`, `data` | partial |
+| L20 | Spatial/plate/temporal holdouts with buffer | `evaluate.py`, leave-region-out CLI | done |
+| L21 | Strain-rate tensor from differentiable fields | `strain.py` + CLI | done |
+| L22 | Residual outlier investigation with provenance | `outliers.py` + CLI | done |
 | L23 | Synthetic known-truth worlds | `synthetic.py` | done |
 | L24 | Globe with all layers | `web/` | pending |
 | L25 | Geological timeline bounded by model validity | `geo/sequence.rs` enforces | partial |
 | L26 | Separate modern/paleo clocks | design + diagram | partial |
 | L27 | Vector exaggeration with scale legend | `web/` | pending |
 | L28 | Station inspector | `web/` | pending |
-| L29 | Linked cross-sections | `web/` | pending |
+| L29 | Linked cross-sections | `profile.py` | done |
 | L30 | Layer provenance, legends, downloads | `web/` | pending |
-| L31 | Spatial tiling/query/cache with full keys | partial (cache keys by frame) | partial |
-| L32 | Bounded async with cancellation and generation IDs | `web/` | pending |
-| L33 | Notebooks as reproducible views | `docs/research` | pending |
+| L31 | Spatial tiling/query/cache with full keys | `recon/cache.rs` | done |
+| L32 | Bounded async with cancellation and generation IDs | `recon/cache.rs`, atlas gen counter | done |
+| L33 | Notebooks as reproducible views | `notebooks/` | done |
 | L34 | Independent comparison vs pyGPlates | - | pending (needs pyGPlates) |
-| L35 | Research registry of seeds/folds/held-out identities | `evaluate.py` + run logs | partial |
+| L35 | Research registry of seeds/folds/held-out identities | `registry.py` | done |
 | L36 | Executable atlas tour | `web/` | pending |
 
 ## Gate status
