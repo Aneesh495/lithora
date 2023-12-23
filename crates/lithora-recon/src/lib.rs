@@ -9,12 +9,14 @@
 //! It depends on the geometry core for all mathematics and adds only the
 //! input/output and model-assembly layer.
 
+pub mod assign;
 pub mod boundary;
 pub mod cache;
 pub mod compare;
 pub mod reconstruct;
 pub mod rot_format;
 
+pub use assign::{assign, Assignment, PlatePolygon};
 pub use boundary::{relative_motion, BoundaryClass, RelativeMotion};
 pub use cache::{TileCache, TileKey};
 pub use compare::{compare_point, summarize, ComparisonPoint, ComparisonSummary};
