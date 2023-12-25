@@ -34,6 +34,8 @@ jobs:
         run: cargo test -p lithora-geo --test g02_reconstruction --release
       - name: G12 cache stress (diagnostic)
         run: cargo test -p lithora-recon --test g12_cache_stress --release
+      - name: Circuit property tests
+        run: cargo test -p lithora-geo --test circuit_properties --release
 
   python:
     name: Python inference
