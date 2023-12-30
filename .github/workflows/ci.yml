@@ -38,6 +38,8 @@ jobs:
         run: cargo test -p lithora-geo --test circuit_properties --release
       - name: Sequence property tests
         run: cargo test -p lithora-geo --test sequence_properties --release
+      - name: Polygon property tests
+        run: cargo test -p lithora-geo --test polygon_properties --release
 
   python:
     name: Python inference
