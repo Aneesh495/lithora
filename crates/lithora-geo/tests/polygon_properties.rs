@@ -8,7 +8,6 @@
 
 use lithora_geo::coord::LatLon;
 use lithora_geo::polygon::SphericalRing;
-use lithora_geo::rotation::Rotation;
 use lithora_geo::testutil::Rng;
 
 fn small_quad(rng: &mut Rng) -> (LatLon, Vec<LatLon>) {
