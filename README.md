@@ -108,9 +108,25 @@ holdout coloring, and a provenance panel that always shows the reference frame.
 cd web && npm install && npm run dev
 ```
 
-See `docs/research/` for the twelve research notes, `docs/DERIVATIONS.md` for
-the mathematics, `docs/ARCHITECTURE.md` for the system structure, and
-`docs/diagrams/` for the rendered diagrams.
+## Documentation
+
+- `docs/ARCHITECTURE.md` — the three layers and enforced boundaries.
+- `docs/DERIVATIONS.md` — every convention and the kinematic derivations.
+- `docs/SPECIFICATION.md` — capability-to-code map and gate status.
+- `docs/research/` — twelve research notes with measured results.
+- `docs/FINDINGS.md` — consolidated findings and limitations.
+- `docs/walkthroughs/` — four source-linked execution paths.
+- `docs/adr/` — thirteen architecture decision records.
+- `docs/diagrams/` — thirteen Mermaid diagrams with rendered SVG.
+- `docs/data_cards/` — provenance, licenses, and caveats for each dataset and
+  the learned model.
+- `docs/REPRODUCIBILITY.md`, `docs/RECOVERY_RUNBOOK.md`,
+  `docs/ARTIFACT_FORMAT.md`, `docs/EXPERIMENT_PLAN.md`,
+  `docs/BENCHMARK_METHODOLOGY.md` — how to reproduce, recover, and verify.
+
+Current test coverage: 122 Rust tests (including property campaigns over
+100,000+ geometry cases) and 66 Python tests, all run in CI alongside rustfmt,
+clippy with warnings denied, and the web typecheck and build.
 
 ## Honesty notes
 
