@@ -28,7 +28,7 @@ passing test or a runnable demo behind it.
 | Reconstruction orchestration | done | `reconstruct` module + tests |
 | CLI with runnable demo | done | `lithora demo` |
 
-Current test count: 64 Rust unit tests passing.
+Current test count: 122 Rust tests passing (unit + property + gate campaigns).
 
 ## Python inference layer (python/)
 
@@ -46,7 +46,14 @@ Current test count: 64 Rust unit tests passing.
 | Robust GNSS time-series fit | done | `timeseries.py` + tests |
 | NGL + USGS acquisition | done | `data/` with provenance; 20,168 IGS14 stations pulled |
 
-Current test count: 36 Python tests passing + 64 Rust unit + 11 Rust G01 = 111.
+Current test count: 66 Python tests + 122 Rust tests = 188 total, all in CI.
+
+Additional implemented modules since the first cut: strain-rate estimation
+(L21), cross-model comparison (L08), boundary classification (L09), bounded
+tile cache with generations (L31/L32), uncertainty budget (L18), residual
+outlier investigation (L22), cross-section profiles (L29), research registry
+(L35), plate assignment and quality flags (L06/L10), Vincenty geodesics (L07),
+flowlines, and reproducible notebooks (L33).
 
 ## Measured real-data result (integration check)
 
