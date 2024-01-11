@@ -89,3 +89,11 @@ input[type="checkbox"] {
 .inspector table { width: 100%; border-collapse: collapse; }
 .inspector td { padding: 2px 4px; vertical-align: top; }
 .inspector td:first-child { color: var(--muted); white-space: nowrap; }
+
+#region-status:empty { display: none; }
+@media (max-width: 640px) {
+  html, body { height: auto; min-height: 100%; }
+  #cesiumContainer { position: relative; height: 55svh; min-height: 300px; }
+  #panel { position: relative; width: 100%; max-height: none; overflow: visible; border-left: 0; }
+  #panel select { min-height: 44px; }
+}

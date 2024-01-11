@@ -89,24 +89,28 @@ const METRES_PER_MM_YR = 3000;
 
 async function loadRegion(region: string): Promise<void> {
   const gen = ++state.generation;
-  state.region = region;
-  const resp = await fetch(new URL(`data/${region}.json`, document.baseURI));
-  const payload = (await resp.json()) as RegionPayload;
-  // If another region was requested while we were fetching, drop this result.
+  const notice = document.getElementById("region-status")!;
+  notice.textContent = "Loading region…";
+  const load = async (name: string) => {
+    const response = await fetch(new URL(`data/${name}.json`, document.baseURI));
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  };
+  const [stations, quakes] = await Promise.allSettled([
+    load(region) as Promise<RegionPayload>,
+    load(`quakes_${region}`) as Promise<QuakePayload>,
+  ]);
   if (gen !== state.generation) return;
-  state.payload = payload;
-
-  // Load the matching earthquake context layer if present.
-  try {
-    const qresp = await fetch(new URL(`data/quakes_${region}.json`, document.baseURI));
-    if (qresp.ok && gen === state.generation) {
-      state.quakes = (await qresp.json()) as QuakePayload;
-    }
-  } catch {
-    state.quakes = null;
+  if (stations.status === "rejected") {
+    notice.textContent = "Could not load this region. Select a region to try again.";
+    (document.getElementById("region") as HTMLSelectElement).value = state.region;
+    return;
   }
-  if (gen !== state.generation) return;
-
+  state.region = region;
+  state.payload = stations.value;
+  state.quakes = quakes.status === "fulfilled" ? quakes.value : null;
+  notice.textContent = state.quakes ? "" : "Earthquake context is unavailable for this region.";
+  const payload = stations.value;
   updateProvenance();
   render();
   flyToData(payload.stations);
