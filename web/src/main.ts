@@ -90,7 +90,7 @@ const METRES_PER_MM_YR = 3000;
 async function loadRegion(region: string): Promise<void> {
   const gen = ++state.generation;
   state.region = region;
-  const resp = await fetch(`/data/${region}.json`);
+  const resp = await fetch(new URL(`data/${region}.json`, document.baseURI));
   const payload = (await resp.json()) as RegionPayload;
   // If another region was requested while we were fetching, drop this result.
   if (gen !== state.generation) return;
@@ -98,7 +98,7 @@ async function loadRegion(region: string): Promise<void> {
 
   // Load the matching earthquake context layer if present.
   try {
-    const qresp = await fetch(`/data/quakes_${region}.json`);
+    const qresp = await fetch(new URL(`data/quakes_${region}.json`, document.baseURI));
     if (qresp.ok && gen === state.generation) {
       state.quakes = (await qresp.json()) as QuakePayload;
     }
