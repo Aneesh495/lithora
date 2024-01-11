@@ -10,7 +10,7 @@ PY := $(VENV)/bin/python
 PIP := $(VENV)/bin/pip
 PYTEST := $(VENV)/bin/pytest
 
-.PHONY: all bootstrap doctor build test data demo bench stress docs acceptance verify negative-controls release \
+.PHONY: all bootstrap doctor build test test-rust test-python test-web data demo bench stress docs acceptance verify negative-controls release \
         acquire-gnss acquire-quakes export-web reconstruct fit-plates train spatial-evaluate atlas paper clean
 
 all: build test
@@ -96,7 +96,11 @@ bench:
 	cargo bench -p lithora-geo --bench reconstruct_throughput
 
 stress:
-	@echo "Stress campaign not yet wired; see docs/EXPERIMENT_PLAN.md"
+	cargo test -p lithora-recon --test g12_cache_stress --release
+	@echo "Diagnostic stress complete. The 12-hour mixed-query run is in docs/EXPERIMENT_PLAN.md"
+
+test-web:
+	cd web && npm run typecheck && npm run build
 
 docs:
 	@echo "Docs live under docs/. Diagrams under docs/diagrams (make diagrams)."
