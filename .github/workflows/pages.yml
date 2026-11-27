@@ -37,7 +37,7 @@ jobs:
           cd ..
           mkdir -p _site
           cp -a web/dist/. _site/
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
       - name: Deploy
